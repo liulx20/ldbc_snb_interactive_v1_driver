@@ -85,6 +85,7 @@ public class Spinner
             this.sleepDurationAsMilli = sleepDurationAsMilli;
         }
 
+        //sleep
         @Override
         public Boolean apply( Operation operation, SpinnerCheck check )
         {
@@ -94,7 +95,6 @@ public class Spinner
             {
                 powerNap( sleepDurationAsMilli );
             }
-
             // wait for scheduled operation start time
             while ( timeSource.nowAsMilli() < operation.scheduledStartTimeAsMilli() )
             {

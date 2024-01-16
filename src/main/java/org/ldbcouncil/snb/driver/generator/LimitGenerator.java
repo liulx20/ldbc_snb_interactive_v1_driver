@@ -21,6 +21,7 @@ public class LimitGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
         if ( count == limit ) return null;
         GENERATE_TYPE next = ( generator.hasNext() ) ? generator.next() : null;
         count++;
+        System.out.println("count: " + count + " limit: " + limit);
         return next;
     }
 }

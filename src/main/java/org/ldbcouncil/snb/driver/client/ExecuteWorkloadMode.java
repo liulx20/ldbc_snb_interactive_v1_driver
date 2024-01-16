@@ -103,6 +103,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                                  " --- Warmup Phase ---\n" +
                                  " --------------------" );
             doInit( true );
+            System.out.println("init finished");
             doExecute( true );
             try
             {
@@ -219,6 +220,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                     controlService.configuration().timeCompressionRatio(),
                     gf
             );
+            System.out.println("timecompressionRatio: " + controlService.configuration().timeCompressionRatio());
         }
         catch ( WorkloadException e )
         {
@@ -292,6 +294,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
+            System.out.println("new work load Runner");
             workloadRunner = new WorkloadRunner(
                     timeSource,
                     database,

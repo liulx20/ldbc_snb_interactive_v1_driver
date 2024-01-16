@@ -7,6 +7,7 @@ import org.ldbcouncil.snb.driver.OperationHandlerRunnableContext;
 import org.ldbcouncil.snb.driver.WorkloadException;
 import org.ldbcouncil.snb.driver.runtime.coordination.CompletionTimeException;
 
+// short
 public class ChildOperationExecutor
 {
     public void execute(
@@ -23,7 +24,7 @@ public class ChildOperationExecutor
             return;
         }
         else
-        {
+        {   
             if ( null != childOperationGenerator )
             {
                 double state = childOperationGenerator.initialState();

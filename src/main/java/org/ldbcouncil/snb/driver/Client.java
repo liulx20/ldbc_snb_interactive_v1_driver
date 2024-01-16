@@ -1,4 +1,5 @@
 package org.ldbcouncil.snb.driver;
+
 /**
  * Client.java
  * 
@@ -38,84 +39,74 @@ import static java.lang.String.format;
 
 // TODO Validate Workload to work with short reads
 
-public class Client
-{
+public class Client {
     private static final long RANDOM_SEED = 42;
 
-    public static void main( String[] args ) throws ClientException
-    {
+    public static void main(String[] args) throws ClientException {
         ControlService controlService = null;
         boolean detailedStatus = false;
-        LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory( detailedStatus );
-        LoggingService loggingService = loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() );
-        try
-        {
+        LoggingServiceFactory loggingServiceFactory = new Log4jLoggingServiceFactory(detailedStatus);
+        LoggingService loggingService = loggingServiceFactory.loggingServiceFor(Client.class.getSimpleName());
+        try {
             TimeSource systemTimeSource = new SystemTimeSource();
-            ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs( args );
-            // TODO this method will not work with multiple processes - should come from controlService
-            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis( 5 );
+            ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
+            // TODO this method will not work with multiple processes - should come from
+            // controlService
+            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(5);
             controlService = new LocalControlService(
                     workloadStartTimeAsMilli,
                     configuration,
                     loggingServiceFactory,
-                    systemTimeSource );
+                    systemTimeSource);
             Client client = new Client();
-            ClientMode clientMode = client.getClientModeFor( controlService );
+            ClientMode clientMode = client.getClientModeFor(controlService);
+            System.out.println("Start");
             clientMode.init();
             clientMode.startExecutionAndAwaitCompletion();
-        }
-        catch ( DriverConfigurationException e )
-        {
-            String errMsg = format( "Error parsing parameters: %s", e.getMessage() );
-            loggingService.info( errMsg );
-            System.exit( 1 );
-        }
-        catch ( Exception e )
-        {
-            loggingService.info( "Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString( e ) );
-            System.exit( 1 );
-        }
-        finally
-        {
-            if ( null != controlService )
-            {
+        } catch (DriverConfigurationException e) {
+            String errMsg = format("Error parsing parameters: %s", e.getMessage());
+            loggingService.info(errMsg);
+            System.exit(1);
+        } catch (Exception e) {
+            loggingService.info("Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString(e));
+            System.exit(1);
+        } finally {
+            if (null != controlService) {
                 controlService.shutdown();
             }
         }
     }
 
     /**
-     * Create instance of operation mode. 
+     * Create instance of operation mode.
+     * 
      * @param controlService ControlService with loaded DriverConfiguration
      * @return ClientMode object with specified operation mode
      * @throws ClientException When one or more required parameters are missing
      */
-    public ClientMode getClientModeFor( ControlService controlService ) throws ClientException
-    {
-        if ( controlService.configuration().shouldPrintHelpString() )
-        {
-            return new PrintHelpMode( controlService );
+    public ClientMode getClientModeFor(ControlService controlService) throws ClientException {
+        if (controlService.configuration().shouldPrintHelpString()) {
+            return new PrintHelpMode(controlService);
         }
 
-        List<String> missingParams = 
-            ConsoleAndFileDriverConfiguration.checkMissingParams(controlService.configuration());
-        if ( !missingParams.isEmpty() )
-        {
-            throw new ClientException( format( "Missing required parameters: %s", missingParams.toString() ) );
+        List<String> missingParams = ConsoleAndFileDriverConfiguration
+                .checkMissingParams(controlService.configuration());
+        if (!missingParams.isEmpty()) {
+            throw new ClientException(format("Missing required parameters: %s", missingParams.toString()));
         }
 
         OperationMode mode = OperationMode.valueOf(controlService.configuration().mode());
 
         switch (mode) {
             case create_validation:
-                return new CreateValidationParamsMode( controlService, RANDOM_SEED );
+                return new CreateValidationParamsMode(controlService, RANDOM_SEED);
             case create_statistics:
-                return new CalculateWorkloadStatisticsMode( controlService, RANDOM_SEED );
+                return new CalculateWorkloadStatisticsMode(controlService, RANDOM_SEED);
             case validate_database:
-                return new ValidateDatabaseMode( controlService );
+                return new ValidateDatabaseMode(controlService);
             case execute_benchmark:
             default: // Execute benchmark is default behaviour
-                return new ExecuteWorkloadMode( controlService, new SystemTimeSource(), RANDOM_SEED );
+                return new ExecuteWorkloadMode(controlService, new SystemTimeSource(), RANDOM_SEED);
         }
     }
 }

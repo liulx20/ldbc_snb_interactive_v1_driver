@@ -67,10 +67,13 @@ public class WorkloadStreams
         List<Long> peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
         List<PeekingIterator<Operation>> peekingBlockingNonDependencyOperationStreams = new ArrayList<>();
         List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
+        
         for ( int i = 0; i < blockingStreams.size(); i++ )
         {
+            
+
             PeekingIterator<Operation> peekingBlockingDependencyOperationStream =
-                    Iterators.peekingIterator( blockingStreams.get( i ).dependencyOperations() );
+                    Iterators.peekingIterator( blockingStreams.get( i ).dependencyOperations() );// LimitGenerator
             try
             {
                 long firstAsMilli = peekingBlockingDependencyOperationStream.peek().scheduledStartTimeAsMilli();
@@ -153,11 +156,13 @@ public class WorkloadStreams
                 // do nothing, just means stream was empty
             }
         }
-
+        System.out.println("peeking size: " + peekingBlockingNonDependencyOperationStreams.size());
+        // 96 Update
         for ( int i = 0; i < peekingBlockingNonDependencyOperationStreams.size(); i++ )
         {
             try
             {
+                
                 long firstAsMilli =
                         peekingBlockingNonDependencyOperationStreams.get( i ).peek().scheduledStartTimeAsMilli();
                 peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.set(
@@ -265,15 +270,18 @@ public class WorkloadStreams
 
         streams.add( unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations() );
         childOperationGenerators.add( unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator() );
-
+        int idx = 0;
         for ( WorkloadStreamDefinition stream : unlimitedWorkloadStreams.blockingStreamDefinitions() )
         {
+            System.out.println("stream idx: " + idx);
+            idx++;
             streams.add( stream.dependencyOperations() );
             childOperationGenerators.add( stream.childOperationGenerator() );
 
             streams.add( stream.nonDependencyOperations() );
             childOperationGenerators.add( stream.childOperationGenerator() );
         }
+        System.out.println("stream size:" + streams.size());
 
         // stream through streams once, to calculate how many operations are needed from each,
         // to get operation_count in total
@@ -285,12 +293,14 @@ public class WorkloadStreams
                         childOperationGenerators,
                         loggingServiceFactory
                 );
-        long[] startForStream = limitsAndMinimumsForStream._1();
-        long[] limitForStream = limitsAndMinimumsForStream._2();
+        long[] startForStream = limitsAndMinimumsForStream._1();//全0
+        long[] limitForStream = limitsAndMinimumsForStream._2();//全0
         long minimumTimeStamp = limitsAndMinimumsForStream._3();
 
         workload.close();
+      
 
+        System.out.println("minTimeStamp: " + minimumTimeStamp);
         // ================================
         // ====== Create Limited Streams ==
         // ================================
@@ -315,6 +325,7 @@ public class WorkloadStreams
         }
 
         // copy unbounded streams to new workload streams instance, from offsets, applying limits
+        System.out.println("limit for stream 1: " + limitForStream[1] + unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations().getClass().getSimpleName());
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
                 unlimitedWorkloadStreams.asynchronousStream().dependencyOperationTypes(),
@@ -324,6 +335,7 @@ public class WorkloadStreams
         );
         for ( int i = 0; i < unlimitedBlockingStreams.size(); i++ )
         {
+            
             workloadStreams.addBlockingStream(
                     unlimitedBlockingStreams.get( i ).dependentOperationTypes(),
                     unlimitedBlockingStreams.get( i ).dependencyOperationTypes(),
@@ -348,6 +360,7 @@ public class WorkloadStreams
             List<ChildOperationGenerator> childOperationGenerators,
             LoggingServiceFactory loggingServiceFactory ) throws WorkloadException
     {
+        System.out.println("limit: " + limit);
         LoggingService loggingService =
                 loggingServiceFactory.loggingServiceFor( WorkloadStreams.class.getSimpleName() );
         final DecimalFormat numberFormat = new DecimalFormat( "###,###,###,###,###" );
@@ -369,6 +382,7 @@ public class WorkloadStreams
         long[] kForStreamOffset = new long[streams.size()];
         for ( int i = 0; i < streams.size(); i++ )
         {
+            //System.out.println(streams.get(i).getClass().getSimpleName());// 2个MergingIterator 192 EmptyIterator
             kForStreamOffset[i] = 0;
         }
         long kSoFarOffset = 0;
@@ -456,12 +470,13 @@ public class WorkloadStreams
         long minimumTimeStamp = Long.MAX_VALUE;
         // count of operations to retrieve from that particular stream
         long[] kForStreamRun = new long[streams.size()];
+        System.out.println("Stream size: " + streams.size());
         for ( int i = 0; i < streams.size(); i++ )
         {
             kForStreamRun[i] = 0;
         }
         long kSoFarRun = 0;
-
+        //生成请求数量， IC IU数量都是跟limit相关的， limit通过配置operation count 指定
         while ( kSoFarRun < limit )
         {
             long minAsMilli = Long.MAX_VALUE;

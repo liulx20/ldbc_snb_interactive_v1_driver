@@ -41,11 +41,14 @@ class OperationStreamExecutorServiceThread extends Thread
     {
         try
         {
+            // IC IU都会走这里
             while ( initiatedTimeSubmittingOperationRetriever.hasNextOperation() && !forcedTerminate.get() )
             {
                 Operation operation = initiatedTimeSubmittingOperationRetriever.nextOperation();
                 // --- BLOCKING CALL (when bounded queue is full) ---
+                System.out.println(operationExecutor.getClass().getSimpleName());
                 operationExecutor.execute( operation );
+                System.out.println("begin 53");
             }
         }
         catch ( Throwable e )

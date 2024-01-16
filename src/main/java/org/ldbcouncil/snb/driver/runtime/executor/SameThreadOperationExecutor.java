@@ -46,9 +46,11 @@ public class SameThreadOperationExecutor implements OperationExecutor
                 metricsService );
     }
 
+    // IU
     @Override
     public final void execute( Operation operation ) throws OperationExecutorException
     {
+        System.out.println(uncompletedHandlers.getClass().getSimpleName());
         uncompletedHandlers.incrementAndGet();
         OperationHandlerRunnableContext operationHandlerRunnableContext = null;
         try
@@ -56,6 +58,7 @@ public class SameThreadOperationExecutor implements OperationExecutor
             operationHandlerRunnableContext =
                     operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
             operationHandlerRunnableContext.run();
+            //childOperationGenerator always == null
             childOperationExecutor.execute(
                     childOperationGenerator,
                     operationHandlerRunnableContext.operation(),
@@ -64,6 +67,7 @@ public class SameThreadOperationExecutor implements OperationExecutor
                     operationHandlerRunnableContext.resultReporter().runDurationAsNano(),
                     operationHandlerRunnableContextRetriever
             );
+            
         }
         catch ( Throwable e )
         {

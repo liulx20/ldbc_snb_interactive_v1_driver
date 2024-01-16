@@ -51,6 +51,7 @@ public class WorkloadRunner
             boolean ignoreScheduleStartTimes,
             int operationHandlerExecutorsBoundedQueueSize ) throws WorkloadException, MetricsCollectionException
     {
+        System.out.println("threadCount: " + threadCount + ", statusDisplayIntervalAsSeconds: " + statusDisplayIntervalAsSeconds + ", spinnerSleepDurationAsMilli: " + spinnerSleepDurationAsMilli);
         this.workloadRunnerFuture = new WorkloadRunnerFuture(
                 timeSource,
                 db,

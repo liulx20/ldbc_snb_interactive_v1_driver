@@ -10,7 +10,8 @@ import java.util.Iterator;
 // TODO test
 class InitiatedTimeSubmittingOperationRetriever
 {
-    private final Iterator<Operation> nonDependencyOperations;
+    //只有IC IU 全都是nonDependencyOperations
+    private final Iterator<Operation> nonDependencyOperations; // TimeMappingOperationGenerator
     private final Iterator<Operation> dependencyOperations;
     private final CompletionTimeWriter completionTimeWriter;
     private Operation nextNonDependencyOperation = null;
@@ -39,6 +40,7 @@ class InitiatedTimeSubmittingOperationRetriever
         if ( dependencyOperations.hasNext() && null == nextDependencyOperation )
         {
             nextDependencyOperation = dependencyOperations.next();
+            
             // submit initiated time as soon as possible so /dependencies can advance as soon as possible
             completionTimeWriter.submitInitiatedTime( nextDependencyOperation.timeStamp() );
             if ( !dependencyOperations.hasNext() )
@@ -51,6 +53,7 @@ class InitiatedTimeSubmittingOperationRetriever
         if ( nonDependencyOperations.hasNext() && null == nextNonDependencyOperation )
         {
             nextNonDependencyOperation = nonDependencyOperations.next();
+            //System.out.println("class name:" + nonDependencyOperations.getClass().getSimpleName());
             // no need to submit initiated time for an operation that should not write to CT
         }
         // return operation with lowest start time
@@ -65,6 +68,7 @@ class InitiatedTimeSubmittingOperationRetriever
             else
             {
                 nextOperation = nextDependencyOperation;
+            
                 nextDependencyOperation = null;
             }
             return nextOperation;

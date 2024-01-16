@@ -85,6 +85,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor
         uncompletedHandlers.incrementAndGet();
         try
         {
+            // IC
             OperationHandlerRunnableContext operationHandlerRunnableContext =
                     operationHandlerRunnableContextRetriever.getInitializedHandlerFor( operation );
             threadPoolExecutorService.execute( operationHandlerRunnableContext );

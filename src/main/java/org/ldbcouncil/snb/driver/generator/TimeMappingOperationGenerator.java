@@ -19,7 +19,7 @@ public class TimeMappingOperationGenerator extends Generator<Operation>
             long newStartTimeAsMilli,
             Double timeCompressionRatio )
     {
-        this.operations = operations;
+        this.operations = operations;// PeekingImpl
         this.newStartTimeAsMilli = newStartTimeAsMilli;
         this.timeCompressionRatio = timeCompressionRatio;
     }
@@ -29,6 +29,7 @@ public class TimeMappingOperationGenerator extends Generator<Operation>
     {
         if ( false == operations.hasNext() )
         { return null; }
+        //System.out.println(operations.getClass().getSimpleName());
         Operation nextOperation = operations.next();
         if ( null == timeOffsetAsMilliFun )
         {
@@ -62,6 +63,7 @@ public class TimeMappingOperationGenerator extends Generator<Operation>
         }
         long offsetStartTimeAsMilli = timeOffsetAsMilliFun.apply( nextOperation.scheduledStartTimeAsMilli() );
         long offsetAndCompressedStartTimeAsMilli = startTimeAsMilliCompressionFun.apply( offsetStartTimeAsMilli );
+        //System.out.println(nextOperation.getClass().getSimpleName());
         nextOperation.setScheduledStartTimeAsMilli( offsetAndCompressedStartTimeAsMilli );
         return nextOperation;
     }

@@ -130,6 +130,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
         }
         try
         {
+            //休眠
             if ( !spinner.waitForScheduledStartTime( operation, beforeExecuteCheck ) )
             {
                 // TODO something more elaborate here? see comments in Spinner
@@ -137,6 +138,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable
                 // Spinner result indicates operation should not be processed
                 return;
             }
+           
             resultReporter.setActualStartTimeAsMilli( timeSource.nowAsMilli() );
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             operationHandler.executeOperation( operation, dbConnectionState, resultReporter );
